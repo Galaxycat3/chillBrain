@@ -172,3 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+<<<<<<< HEAD
+=======
+// Git test Galaxycat2
+>>>>>>> 1f880ca4d793a2e3a136d8e1b424efd7699f0763

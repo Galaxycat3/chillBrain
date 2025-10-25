@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'journal_page.dart'; // Import the JournalPage file
 import 'affirmations_page.dart';
-
+import 'mood_tracker_page.dart';
+import 'exercises_list_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -76,24 +77,23 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               "Take a deep breath. Let's focus on your wellbeing today.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
             const SizedBox(height: 40),
 
-           _buildFeatureButton(
-  icon: Icons.favorite_outline,
-  label: "Daily Affirmation",
-  color: const Color(0xFFFFC1CC),
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AffirmationsPage()),
-    );
-  },
-),
+            _buildFeatureButton(
+              icon: Icons.favorite_outline,
+              label: "Daily Affirmation",
+              color: const Color(0xFFFFC1CC),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AffirmationsPage(),
+                  ),
+                );
+              },
+            ),
 
             const SizedBox(height: 16),
             _buildFeatureButton(
@@ -112,14 +112,28 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icons.format_quote,
               label: "Mood Tracker",
               color: const Color(0xFFE1BEE7),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MoodTrackerPage(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
             _buildFeatureButton(
               icon: Icons.book_outlined,
               label: "Guided Exercises",
               color: const Color(0xFFFFF9C4),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ExercisesListPage(),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -158,4 +172,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-

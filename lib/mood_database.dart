@@ -43,6 +43,11 @@ class MoodDatabase {
     return await db.query('moods', orderBy: 'date DESC');
   }
 
+  Future<int> deleteAll() async {
+    final db = await instance.database;
+    return await db.delete('moods');
+  }
+
   Future<void> close() async {
     final db = _database;
     if (db != null) {

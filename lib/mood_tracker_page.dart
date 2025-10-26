@@ -72,7 +72,9 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                 ),
                 const SizedBox(height: 24),
                 AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200), // fade
+                  duration: MediaQuery.of(context).accessibleNavigation
+                      ? Duration.zero
+                      : const Duration(milliseconds: 200), // fade
                   child: Text(
                     _faces[idx],
                     key: ValueKey(idx),
@@ -82,7 +84,9 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                 ),
                 const SizedBox(height: 8),
                 AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
+                  duration: MediaQuery.of(context).accessibleNavigation
+                      ? Duration.zero
+                      : const Duration(milliseconds: 200),
                   child: Text(
                     _labels[idx],
                     key: ValueKey('l$idx'),
@@ -115,9 +119,25 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Recent Moods',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Recent Moods',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await MoodDatabase.instance.deleteAll();
+                        setState(() => _recentMoods = []);
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Cleared')),
+                        );
+                      },
+                      child: const Text('Clear'),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
@@ -194,10 +214,12 @@ class _MoodBarChart extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300), // chart
+                    duration: MediaQuery.of(context).accessibleNavigation
+                        ? Duration.zero
+                        : const Duration(milliseconds: 300), // chart
                     height: 16.0 + (lv / 5.0) * 80.0,
                     decoration: BoxDecoration(
-                      color: Colors.teal.withOpacity(0.7),
+                      color: Colors.teal.withValues(alpha: 0.7),
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),

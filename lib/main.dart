@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart'; // <-- Add this
-import 'journal_page.dart'; // Import the JournalPage file
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'journal_page.dart';
 import 'affirmations_page.dart';
 import 'mood_tracker_page.dart';
 import 'exercises_list_page.dart';
+import 'reflection_page.dart';
 
 void main() {
   // Initialize FFI for desktop (Windows/macOS/Linux)
@@ -50,8 +51,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Route _fadeTo(Widget page) => PageRouteBuilder(
-    transitionDuration: const Duration(milliseconds: 250), // fade
+  Route _fadeTo(BuildContext context, Widget page) => PageRouteBuilder(
+    transitionDuration: MediaQuery.of(context).accessibleNavigation
+        ? Duration.zero
+        : const Duration(milliseconds: 250), // fade
     pageBuilder: (_, __, ___) => page,
     transitionsBuilder: (_, a, __, child) =>
         FadeTransition(opacity: a, child: child),
@@ -72,64 +75,90 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(
-              "Welcome back 🌸",
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.teal,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "Welcome back 🌸",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              "Take a deep breath. Let's focus on your wellbeing today.",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.black54),
-            ),
-            const SizedBox(height: 40),
+              const SizedBox(height: 8),
+              const Text(
+                "Take a deep breath. Let's focus on your wellbeing today.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+              const SizedBox(height: 40),
 
-            _buildFeatureButton(
-              icon: Icons.favorite_outline,
-              label: "Daily Affirmation",
-              color: const Color(0xFFFFC1CC),
-              onPressed: () {
-                Navigator.push(context, _fadeTo(const AffirmationsPage()));
-              },
-            ),
+              _buildFeatureButton(
+                icon: Icons.favorite_outline,
+                label: "Daily Affirmation",
+                color: const Color(0xFFFFC1CC),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    _fadeTo(context, const AffirmationsPage()),
+                  );
+                },
+              ),
 
-            const SizedBox(height: 16),
-            _buildFeatureButton(
-              icon: Icons.self_improvement,
-              label: "Journal",
-              color: const Color(0xFFAEDFF7),
-              onPressed: () {
-                Navigator.push(context, _fadeTo(const JournalPage()));
-              },
-            ),
-            const SizedBox(height: 16),
-            _buildFeatureButton(
-              icon: Icons.format_quote,
-              label: "Mood Tracker",
-              color: const Color(0xFFE1BEE7),
-              onPressed: () {
-                Navigator.push(context, _fadeTo(const MoodTrackerPage()));
-              },
-            ),
-            const SizedBox(height: 16),
-            _buildFeatureButton(
-              icon: Icons.book_outlined,
-              label: "Guided Exercises",
-              color: const Color(0xFFFFF9C4),
-              onPressed: () {
-                Navigator.push(context, _fadeTo(const ExercisesListPage()));
-              },
-            ),
-          ],
+              const SizedBox(height: 16),
+              _buildFeatureButton(
+                icon: Icons.self_improvement,
+                label: "Journal",
+                color: const Color(0xFFAEDFF7),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    _fadeTo(context, const JournalPage()),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildFeatureButton(
+                icon: Icons.format_quote,
+                label: "Mood Tracker",
+                color: const Color(0xFFE1BEE7),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    _fadeTo(context, const MoodTrackerPage()),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildFeatureButton(
+                icon: Icons.book_outlined,
+                label: "Guided Exercises",
+                color: const Color(0xFFFFF9C4),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    _fadeTo(context, const ExercisesListPage()),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildFeatureButton(
+                icon: Icons.article_outlined,
+                label: "Reflection",
+                color: const Color(0xFFBBDEFB),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    _fadeTo(context, const ReflectionPage()),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

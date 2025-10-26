@@ -75,7 +75,9 @@ class _AffirmationsPageState extends State<AffirmationsPage> {
                 Expanded(
                   child: Center(
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300), // switch
+                      duration: MediaQuery.of(context).accessibleNavigation
+                          ? Duration.zero
+                          : const Duration(milliseconds: 300), // switch
                       transitionBuilder: (child, anim) =>
                           FadeTransition(opacity: anim, child: child),
                       child: Text(

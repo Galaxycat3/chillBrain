@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'exercise_detail_page.dart';
 
-class ExercisesListPage extends StatelessWidget {
+class ExercisesListPage extends StatefulWidget {
   const ExercisesListPage({super.key});
 
+  @override
+  State<ExercisesListPage> createState() => _ExercisesListPageState();
+}
+
+class _ExercisesListPageState extends State<ExercisesListPage> {
   static final List<_Exercise> _items = [
     _Exercise(
       title: 'Box Breathing',
@@ -40,6 +46,36 @@ class ExercisesListPage extends StatelessWidget {
     ),
   ];
 
+  final Set<String> _favs = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavs();
+  }
+
+  Future<void> _loadFavs() async {
+    final sp = await SharedPreferences.getInstance();
+    final list = sp.getStringList('fav_exercises') ?? [];
+    setState(() {
+      _favs
+        ..clear()
+        ..addAll(list);
+    });
+  }
+
+  Future<void> _toggleFav(String title) async {
+    final sp = await SharedPreferences.getInstance();
+    setState(() {
+      if (_favs.contains(title)) {
+        _favs.remove(title);
+      } else {
+        _favs.add(title);
+      }
+    });
+    await sp.setStringList('fav_exercises', _favs.toList());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +93,7 @@ class ExercisesListPage extends StatelessWidget {
           final twoCols = c.maxWidth >= 700;
           final query = ValueNotifier<String>('');
           final cat = ValueNotifier<String>('All');
+          final favOnly = ValueNotifier<bool>(false);
           final cats = const ['All', 'Breath', 'Body', 'Focus'];
           return Padding(
             padding: const EdgeInsets.all(20),
@@ -88,6 +125,27 @@ class ExercisesListPage extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 12),
+                ValueListenableBuilder<bool>(
+                  valueListenable: favOnly,
+                  builder: (_, on, __) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Text(
+                          'Only favorites',
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                        const SizedBox(width: 8),
+                        Switch(
+                          value: on,
+                          onChanged: (v) => favOnly.value = v,
+                          activeTrackColor: Colors.teal,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
                 Expanded(
                   child: ValueListenableBuilder<String>(
                     valueListenable: query,
@@ -105,17 +163,30 @@ class ExercisesListPage extends StatelessWidget {
                                 selected == 'All' || e.category == selected;
                             return matchQ && matchC;
                           }).toList();
-                          return GridView.builder(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: twoCols ? 2 : 1,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                  childAspectRatio: twoCols ? 2.8 : 2.5,
+                          return ValueListenableBuilder<bool>(
+                            valueListenable: favOnly,
+                            builder: (_, onlyFav, __) {
+                              final items2 = items
+                                  .where(
+                                    (e) => !onlyFav || _favs.contains(e.title),
+                                  )
+                                  .toList();
+                              return GridView.builder(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: twoCols ? 2 : 1,
+                                      crossAxisSpacing: 16,
+                                      mainAxisSpacing: 16,
+                                      childAspectRatio: twoCols ? 2.8 : 2.5,
+                                    ),
+                                itemCount: items2.length,
+                                itemBuilder: (context, i) => _ExerciseCard(
+                                  ex: items2[i],
+                                  fav: _favs.contains(items2[i].title),
+                                  onFav: () => _toggleFav(items2[i].title),
                                 ),
-                            itemCount: items.length,
-                            itemBuilder: (context, i) =>
-                                _ExerciseCard(ex: items[i]),
+                              );
+                            },
                           );
                         },
                       );
@@ -133,7 +204,13 @@ class ExercisesListPage extends StatelessWidget {
 
 class _ExerciseCard extends StatelessWidget {
   final _Exercise ex;
-  const _ExerciseCard({required this.ex});
+  final bool fav;
+  final VoidCallback onFav;
+  const _ExerciseCard({
+    required this.ex,
+    required this.fav,
+    required this.onFav,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +224,9 @@ class _ExerciseCard extends StatelessWidget {
           Navigator.push(
             context,
             PageRouteBuilder(
-              transitionDuration: const Duration(milliseconds: 250), // fade
+              transitionDuration: MediaQuery.of(context).accessibleNavigation
+                  ? Duration.zero
+                  : const Duration(milliseconds: 250), // fade
               pageBuilder: (_, __, ___) => ExerciseDetailPage(
                 title: ex.title,
                 description: ex.description,
@@ -206,6 +285,16 @@ class _ExerciseCard extends StatelessWidget {
                   Text(
                     '${ex.minutes} min',
                     style: const TextStyle(color: Colors.black87),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: Icon(
+                      fav ? Icons.star : Icons.star_border,
+                      color: fav ? Colors.amber : Colors.black26,
+                      size: 22,
+                    ),
+                    onPressed: onFav,
+                    tooltip: 'Favorite',
                   ),
                 ],
               ),

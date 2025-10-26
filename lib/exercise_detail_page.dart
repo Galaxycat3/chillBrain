@@ -75,7 +75,7 @@ class ExerciseDetailPage extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
-                ...steps.map((s) => _StepRow(text: s)).toList(),
+                ...steps.map((s) => _StepRow(text: s)),
                 const Spacer(),
                 ElevatedButton.icon(
                   onPressed: () {

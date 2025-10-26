@@ -22,7 +22,10 @@ class ExerciseDetailPage extends StatelessWidget {
         backgroundColor: const Color(0xFFFFF9C4),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.teal,
+          ),
         ),
         centerTitle: true,
       ),
@@ -34,11 +37,31 @@ class ExerciseDetailPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Hero(
+                  tag: title, // hero
+                  child: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      Icons.self_improvement,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
                 Row(
                   children: [
                     const Icon(Icons.timer, color: Colors.black87),
                     const SizedBox(width: 6),
-                    Text('$minutes min', style: const TextStyle(color: Colors.black87)),
+                    Text(
+                      '$minutes min',
+                      style: const TextStyle(color: Colors.black87),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -65,8 +88,13 @@ class ExerciseDetailPage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFE0F2F1),
                     foregroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ],
@@ -109,4 +137,3 @@ class _StepRow extends StatelessWidget {
     );
   }
 }
-

@@ -11,6 +11,7 @@ class JournalPage extends StatefulWidget {
 class _JournalPageState extends State<JournalPage> {
   final TextEditingController _controller = TextEditingController();
   List<Map<String, dynamic>> _entries = [];
+  String _query = "";
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class _JournalPageState extends State<JournalPage> {
       await JournalDatabase.instance.insertEntry(text);
       _controller.clear();
       await _loadEntries();
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -54,6 +56,8 @@ class _JournalPageState extends State<JournalPage> {
       debugPrint("✅ Entry saved successfully.");
     } catch (e) {
       debugPrint("❌ Error saving entry: $e");
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Failed to save entry: $e"),
@@ -78,10 +82,7 @@ class _JournalPageState extends State<JournalPage> {
         backgroundColor: const Color(0xFFAEDFF7),
         title: const Text(
           "Your Journal ✨",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.teal,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal),
         ),
         centerTitle: true,
       ),
@@ -132,28 +133,74 @@ class _JournalPageState extends State<JournalPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 32, vertical: 14),
+                    horizontal: 32,
+                    vertical: 14,
+                  ),
                 ),
               ),
 
               const SizedBox(height: 20),
 
-              // List of saved entries
+              TextField(
+                decoration: const InputDecoration(
+                  hintText: 'Search',
+                  prefixIcon: Icon(Icons.search),
+                  filled: true,
+                ),
+                onChanged: (v) =>
+                    setState(() => _query = v.trim().toLowerCase()),
+              ),
+              const SizedBox(height: 12),
+
+              // List
               Flexible(
                 flex: 3,
-                child: _entries.isEmpty
-                    ? const Center(
+                child: Builder(
+                  builder: (_) {
+                    final list = _entries.where((e) {
+                      final txt = (e['content'] ?? '').toString().toLowerCase();
+                      return _query.isEmpty || txt.contains(_query);
+                    }).toList();
+                    if (list.isEmpty) {
+                      return const Center(
                         child: Text(
-                          "No entries yet 🌱",
+                          "No entries",
                           style: TextStyle(color: Colors.grey, fontSize: 16),
                         ),
-                      )
-                    : ListView.builder(
-                        itemCount: _entries.length,
-                        itemBuilder: (context, index) {
-                          final entry = _entries[index];
-                          final date = DateTime.tryParse(entry['date'] ?? "");
-                          return Container(
+                      );
+                    }
+                    return ListView.builder(
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        final entry = list[index];
+                        final date = DateTime.tryParse(entry['date'] ?? "");
+                        return Dismissible(
+                          key: ValueKey(entry['id']),
+                          background: Container(
+                            color: Colors.redAccent,
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.only(left: 16),
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
+                          ),
+                          secondaryBackground: Container(
+                            color: Colors.redAccent,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 16),
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
+                          ),
+                          onDismissed: (_) async {
+                            await JournalDatabase.instance.deleteEntry(
+                              entry['id'] as int,
+                            );
+                            await _loadEntries();
+                          },
+                          child: Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -170,8 +217,11 @@ class _JournalPageState extends State<JournalPage> {
                                 const SizedBox(height: 8),
                                 Text(
                                   date != null
-                                      ? "🗓️ ${date.toLocal().toString().substring(0, 16)}"
-                                      : "🗓️ Unknown date",
+                                      ? date.toLocal().toString().substring(
+                                          0,
+                                          16,
+                                        )
+                                      : "Unknown date",
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey,
@@ -179,9 +229,12 @@ class _JournalPageState extends State<JournalPage> {
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),

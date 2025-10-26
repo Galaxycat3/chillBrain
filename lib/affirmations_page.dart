@@ -55,10 +55,7 @@ class _AffirmationsPageState extends State<AffirmationsPage> {
         backgroundColor: const Color(0xFFFFC1CC),
         title: const Text(
           "Positive Affirmations 🌸",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.teal,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal),
         ),
         centerTitle: true,
       ),
@@ -77,13 +74,19 @@ class _AffirmationsPageState extends State<AffirmationsPage> {
               children: [
                 Expanded(
                   child: Center(
-                    child: Text(
-                      _affirmations[_currentIndex],
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.teal,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300), // switch
+                      transitionBuilder: (child, anim) =>
+                          FadeTransition(opacity: anim, child: child),
+                      child: Text(
+                        _affirmations[_currentIndex],
+                        key: ValueKey(_currentIndex),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal,
+                        ),
                       ),
                     ),
                   ),

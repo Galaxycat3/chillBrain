@@ -50,6 +50,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Route _fadeTo(Widget page) => PageRouteBuilder(
+    transitionDuration: const Duration(milliseconds: 250), // fade
+    pageBuilder: (_, __, ___) => page,
+    transitionsBuilder: (_, a, __, child) =>
+        FadeTransition(opacity: a, child: child),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,12 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: "Daily Affirmation",
               color: const Color(0xFFFFC1CC),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AffirmationsPage(),
-                  ),
-                );
+                Navigator.push(context, _fadeTo(const AffirmationsPage()));
               },
             ),
 
@@ -106,10 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: "Journal",
               color: const Color(0xFFAEDFF7),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const JournalPage()),
-                );
+                Navigator.push(context, _fadeTo(const JournalPage()));
               },
             ),
             const SizedBox(height: 16),
@@ -118,12 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: "Mood Tracker",
               color: const Color(0xFFE1BEE7),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MoodTrackerPage(),
-                  ),
-                );
+                Navigator.push(context, _fadeTo(const MoodTrackerPage()));
               },
             ),
             const SizedBox(height: 16),
@@ -132,12 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: "Guided Exercises",
               color: const Color(0xFFFFF9C4),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ExercisesListPage(),
-                  ),
-                );
+                Navigator.push(context, _fadeTo(const ExercisesListPage()));
               },
             ),
           ],

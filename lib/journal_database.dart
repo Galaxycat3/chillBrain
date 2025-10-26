@@ -45,8 +45,16 @@ class JournalDatabase {
     return await db.query('journal_entries', orderBy: 'id DESC');
   }
 
-  Future<void> close() async {
+  Future<int> deleteEntry(int id) async {
     final db = await instance.database;
-    db.close();
+    return await db.delete('journal_entries', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> close() async {
+    final db = _database;
+    if (db != null) {
+      await db.close();
+      _database = null;
+    }
   }
 }

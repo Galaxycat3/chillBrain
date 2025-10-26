@@ -31,9 +31,10 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
     await MoodDatabase.instance.insertMood(level);
     await _loadMoods();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Mood saved for today 💚')),
-    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Mood saved for today')));
   }
 
   @override
@@ -70,16 +71,24 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                   style: TextStyle(fontSize: 18, color: Colors.black87),
                 ),
                 const SizedBox(height: 24),
-                Text(
-                  _faces[idx],
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 56),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200), // fade
+                  child: Text(
+                    _faces[idx],
+                    key: ValueKey(idx),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 56),
+                  ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  _labels[idx],
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    _labels[idx],
+                    key: ValueKey('l$idx'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Slider(
@@ -111,6 +120,16 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
+                SizedBox(
+                  height: 120,
+                  child: _MoodBarChart(
+                    levels: _recentMoods
+                        .map<int>((e) => (e['level'] as int))
+                        .toList(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
                 Expanded(
                   child: ListView.builder(
                     itemCount: _recentMoods.length,
@@ -118,9 +137,17 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                       final entry = _recentMoods[index];
                       final date = DateTime.tryParse(entry['date'] ?? '');
                       final level = entry['level'] as int;
-                      return _MoodChip(
-                        face: _faces[level - 1],
-                        label: "${_labels[level - 1]} (${date != null ? date.toLocal().toString().substring(0, 16) : ''})",
+                      return Dismissible(
+                        key: ValueKey(entry['id'] ?? index),
+                        background: Container(color: Colors.redAccent),
+                        onDismissed: (_) {
+                          setState(() => _recentMoods.removeAt(index));
+                        },
+                        child: _MoodChip(
+                          face: _faces[level - 1],
+                          label:
+                              "${_labels[level - 1]} (${date != null ? date.toLocal().toString().substring(0, 16) : ''})",
+                        ),
                       );
                     },
                   ),
@@ -146,6 +173,39 @@ class _MoodChip extends StatelessWidget {
       label: Text('$face  $label'),
       labelStyle: const TextStyle(color: Colors.black87),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    );
+  }
+}
+
+class _MoodBarChart extends StatelessWidget {
+  final List<int> levels;
+  const _MoodBarChart({required this.levels});
+
+  @override
+  Widget build(BuildContext context) {
+    final data = levels.take(14).toList().reversed.toList();
+    return LayoutBuilder(
+      builder: (_, c) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            for (final lv in data)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300), // chart
+                    height: 16.0 + (lv / 5.0) * 80.0,
+                    decoration: BoxDecoration(
+                      color: Colors.teal.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

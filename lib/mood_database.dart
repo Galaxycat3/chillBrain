@@ -17,11 +17,7 @@ class MoodDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+    return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
   Future _createDB(Database db, int version) async {
@@ -47,8 +43,11 @@ class MoodDatabase {
     return await db.query('moods', orderBy: 'date DESC');
   }
 
-  Future close() async {
-    final db = await instance.database;
-    db.close();
+  Future<void> close() async {
+    final db = _database;
+    if (db != null) {
+      await db.close();
+      _database = null;
+    }
   }
 }

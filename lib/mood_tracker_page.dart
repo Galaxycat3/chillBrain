@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'mood_database.dart';
 
 class MoodTrackerPage extends StatefulWidget {
   const MoodTrackerPage({super.key});
@@ -12,9 +13,39 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
   final List<String> _labels = ['Very low', 'Low', 'Okay', 'Good', 'Great'];
   final List<String> _faces = ['😔', '🙁', '😐', '🙂', '😄'];
 
+  List<Map<String, dynamic>> _recentMoods = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMoods();
+  }
+
+  Future<void> _loadMoods() async {
+    final data = await MoodDatabase.instance.getMoods();
+    setState(() => _recentMoods = data);
+  }
+
+  Future<void> _saveMood() async {
+    final level = _mood.round();
+    await MoodDatabase.instance.insertMood(level);
+    await _loadMoods();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Mood saved for today 💚')),
+    );
+  }
+
+  @override
+  void dispose() {
+    MoodDatabase.instance.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final int idx = _mood.round() - 1;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7F6),
       appBar: AppBar(
@@ -62,11 +93,7 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Logged for today')),
-                    );
-                  },
+                  onPressed: _saveMood,
                   icon: const Icon(Icons.check),
                   label: const Text('Save'),
                   style: ElevatedButton.styleFrom(
@@ -80,18 +107,23 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Recent',
+                  'Recent Moods',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: const [
-                    _MoodChip(face: '🙂', label: 'Good'),
-                    _MoodChip(face: '😐', label: 'Okay'),
-                    _MoodChip(face: '😄', label: 'Great'),
-                  ],
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _recentMoods.length,
+                    itemBuilder: (context, index) {
+                      final entry = _recentMoods[index];
+                      final date = DateTime.tryParse(entry['date'] ?? '');
+                      final level = entry['level'] as int;
+                      return _MoodChip(
+                        face: _faces[level - 1],
+                        label: "${_labels[level - 1]} (${date != null ? date.toLocal().toString().substring(0, 16) : ''})",
+                      );
+                    },
+                  ),
                 ),
               ],
             ),

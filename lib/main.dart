@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart'; // <-- Add this
 import 'journal_page.dart'; // Import the JournalPage file
 import 'affirmations_page.dart';
 import 'mood_tracker_page.dart';
 import 'exercises_list_page.dart';
 
 void main() {
+  // Initialize FFI for desktop (Windows/macOS/Linux)
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
+
   runApp(const MyApp());
 }
 
@@ -172,7 +177,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-<<<<<<< HEAD
-=======
-// Git test Galaxycat2
->>>>>>> 1f880ca4d793a2e3a136d8e1b424efd7699f0763

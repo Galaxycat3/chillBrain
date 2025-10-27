@@ -38,7 +38,7 @@ class ExerciseDetailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Hero(
-                  tag: title, // hero
+                  tag: title,
                   child: Container(
                     width: 64,
                     height: 64,
@@ -76,27 +76,7 @@ class ExerciseDetailPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 ...steps.map((s) => _StepRow(text: s)),
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Audio coming soon')),
-                    );
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Start'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE0F2F1),
-                    foregroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
+                // 👇 Removed the Spacer() and Start button completely
               ],
             ),
           ),

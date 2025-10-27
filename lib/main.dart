@@ -4,7 +4,7 @@ import 'journal_page.dart';
 import 'affirmations_page.dart';
 import 'mood_tracker_page.dart';
 import 'exercises_list_page.dart';
-import 'reflection_page.dart';
+// Removed: import 'reflection_page.dart';
 
 void main() {
   // Initialize FFI for desktop (Windows/macOS/Linux)
@@ -52,13 +52,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Route _fadeTo(BuildContext context, Widget page) => PageRouteBuilder(
-    transitionDuration: MediaQuery.of(context).accessibleNavigation
-        ? Duration.zero
-        : const Duration(milliseconds: 250), // fade
-    pageBuilder: (_, __, ___) => page,
-    transitionsBuilder: (_, a, __, child) =>
-        FadeTransition(opacity: a, child: child),
-  );
+        transitionDuration: MediaQuery.of(context).accessibleNavigation
+            ? Duration.zero
+            : const Duration(milliseconds: 250), // fade
+        pageBuilder: (_, __, ___) => page,
+        transitionsBuilder: (_, a, __, child) =>
+            FadeTransition(opacity: a, child: child),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -145,18 +146,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
               ),
-              const SizedBox(height: 16),
-              _buildFeatureButton(
-                icon: Icons.article_outlined,
-                label: "Reflection",
-                color: const Color(0xFFBBDEFB),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    _fadeTo(context, const ReflectionPage()),
-                  );
-                },
-              ),
+
+              // Removed the Reflection button completely
             ],
           ),
         ),
